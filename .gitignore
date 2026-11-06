@@ -1,8 +1,6 @@
-.env
-*.log
-history.json
-qq-session.json
-watching.json
-tmp/
 __pycache__/
 *.pyc
+.env
+*.log
+*.pid
+tmp/
