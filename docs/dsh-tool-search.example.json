@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "scope": "user",
+  "groups": [
+    {
+      "name": "bili",
+      "prefixes": [
+        "bili_humanism_",
+        "bili_"
+      ]
+    },
+    {
+      "name": "heart",
+      "prefixes": [
+        "heart_"
+      ]
+    }
+  ],
+  "core": [
+    "heart_note",
+    "heart_record",
+    "heart_recall",
+    "heart_summary",
+    "bili_humanism_read"
+  ],
+  "preload": {
+    "enabled": false
+  },
+  "matcher": {
+    "endpoint": "http://127.0.0.1:3199/v1/rerank",
+    "apiKey": "local",
+    "model": "local-bm25",
+    "topN": 20
+  }
+}

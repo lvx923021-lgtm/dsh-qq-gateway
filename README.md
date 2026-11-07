@@ -4,6 +4,20 @@
 
 单文件网关（`gateway.py`，约 900 行），Python 3.10+，只依赖 `aiohttp` 和 `websockets`。
 
+
+---
+
+## 目录
+
+| 文档 | 讲什么 |
+| --- | --- |
+| **本页** | 它是什么、装起来要几步、踩过的坑 |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 全景图、两条脑怎么分、一轮消息的完整路径 |
+| [docs/MEMORY.md](docs/MEMORY.md) | 五层记忆、BM25+用进废退、可更正记录、每轮注入预算 |
+| [docs/TOKEN.md](docs/TOKEN.md) | 钱花在哪、实测对照数、思考档位、工具瘦身、本地 rerank |
+| [docs/OPS.md](docs/OPS.md) | 进程表、等待式抢锁、各类掉线怎么查、备份恢复 |
+| [docs/PATCHES.md](docs/PATCHES.md) | 给两个第三方包打过的补丁（升级会丢） |
+
 ---
 
 ## 一、它是什么
@@ -349,3 +363,53 @@ MIT。见 `LICENSE`。
 
 1. **抽帧从等间隔改成按画面变化**（`dsh-bili-humanism/scripts/media.py`）——避免 40 帧名额被开头几秒吃光；
 2. **消息来源从 v3 包装改成产生方 kind**（`dsh-batch-tool-calls`）——修 `format v4 message requires a producer-owned source kind`。
+
+---
+
+## 十六、快速开始
+
+```bash
+# 1) 依赖
+pip install aiohttp websockets
+
+# 2) 配置
+cp config.env.example .env && chmod 600 .env
+$EDITOR .env            # 至少填 DEEPSEEK_API_KEY、OWNER_QQ、BOT_UIN
+
+# 3) 起 OneBot（NapCat）
+#    把 HTTP 端口开在 3000、WebSocket 在 3001
+
+# 4) 启动
+bash scripts/start-stack.sh     # 互保层 → 看门狗 → 网关
+bash boot-all.sh                # 或者一次起完整链（含 QQ）
+```
+
+跑通了会看到：
+
+```
+[10:09:51] ← 123456789: 在吗
+  本地应答（只是喊人）
+```
+
+## 十七、FAQ
+
+**她很久不回消息？**
+先看 `tail -30 gateway.log`。若见 `WS 断开: name ... is not defined`，是处理函数抛异常，整条连接被断。详见 [docs/OPS.md](docs/OPS.md#她不回消息)。
+
+**为什么有时候 13 秒、有时候 2 秒？**
+两条脑：私聊深聊走 DSH（13s），群里/寒暄走直连（2s）。分流规则在 `need_deep()`。
+
+**能不能更省 token？**
+能。已做：思考档位、本地应答、工具瘦身（`dsh-tool-search` 0.1.8 + core 白名单 + 本地 rerank）。实测从 15,547 降到 10,995。数字与做法见 [docs/TOKEN.md](docs/TOKEN.md)。
+
+**她会不会越聊越贵？**
+会，直到撞到 DSH 的压缩阈值。压缩后她会「不知道」自己缺了一块，所以代码里会记 `compaction.log`，并把"细节还能翻原话"写进注入。
+
+**记忆存在哪？我能自己看吗？**
+全部是本地纯文本，直接 `cat ~/.dsh/heart/raw/2026-11-07.jsonl`。清单见 [docs/MEMORY.md](docs/MEMORY.md)。
+
+**熄屏一段时间 DSH 就掉？**
+那是 Android 的休眠冻结。需要在系统设置里给 App 开「后台高耗电 / 自启动」，脚本改不动系统策略。见 [docs/OPS.md](docs/OPS.md#dsh-宿主掉线)。
+
+**能商用吗？**
+MIT。但插件依赖（`dsh-heart` / `dsh-bili-humanism` / `dsh-tool-search`）各自有自己的许可，第三方 QQ 协议端有风控风险，自己评估。
