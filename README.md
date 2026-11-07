@@ -193,7 +193,7 @@ dsh plugin --profile headless add dsh-bili-humanism  # B站读稿
 ```yaml
 - id: dsh-heart
   config:
-    name: 小鱼
+    name: 柔念依
     callUser: 你
     memory: heart
     ta: ["qq:<你的QQ号>"]
@@ -206,7 +206,7 @@ dsh plugin --profile headless add dsh-bili-humanism  # B站读稿
 `~/.dsh/identity.md`，按 `## ` 分段：
 
 ```markdown
-# 小鱼
+# 柔念依
 （她是谁）
 
 ## 对他
