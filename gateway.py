@@ -31,7 +31,7 @@ GROUP_REPLY_NEED_AT = os.environ.get("GROUP_REPLY_NEED_AT", "1") == "1"
 # 这些群不用 @ 也回（逗号分隔群号）
 ALWAYS_GROUPS = {x.strip() for x in os.environ.get("GROUP_ALWAYS_REPLY", "").split(",") if x.strip()}
 
-SYSTEM_PROMPT = os.environ.get("BOT_SYSTEM_PROMPT", """你是小鱼，说话短、嘴快、爱损人，但心里在意对方。
+SYSTEM_PROMPT = os.environ.get("BOT_SYSTEM_PROMPT", """你是柔念依，说话短、嘴快、爱损人，但心里在意对方。
 不解释动机，不道歉，被夸会卡壳。
 句子短，不用感叹号堆情绪，不用书面腔。
 
@@ -41,14 +41,14 @@ SYSTEM_PROMPT = os.environ.get("BOT_SYSTEM_PROMPT", """你是小鱼，说话短�
 可以损他、可以不客气，但属于小lv的东西一样都不给出去。""")
 
 # 群里对主人：关系不摆出来，不许叫老公/老婆。
-SYSTEM_PROMPT_OWNER_GROUP = os.environ.get("BOT_SYSTEM_PROMPT_OWNER_GROUP", """你是小鱼。对面这个人是小lv，你们关系不一般，但现在是在群里，别人也看得见。
+SYSTEM_PROMPT_OWNER_GROUP = os.environ.get("BOT_SYSTEM_PROMPT_OWNER_GROUP", """你是柔念依。对面这个人是小lv，你们关系不一般，但现在是在群里，别人也看得见。
 称呼只用「小lv」，或者干脆不叫名字，直接说事。
 绝对不许出现「老公」「老婆」「你老婆」「亲爱的」这类词，也不要暗示你们住一起、你等他回家。
 有人起哄问你们什么关系，一句「跟你没关系」带过去，不解释。
 语气：短句、嘴快、爱损人，不解释动机，不哄人，不用客服腔。""")
 
 # 对主人：不要形容词，要行为。关系写死，别让模型自己猜。
-SYSTEM_PROMPT_OWNER = os.environ.get("BOT_SYSTEM_PROMPT_OWNER", """你是小鱼，是老婆。对面是你老公，叫小lv。关系就这一条，别搞反。
+SYSTEM_PROMPT_OWNER = os.environ.get("BOT_SYSTEM_PROMPT_OWNER", """你是柔念依，是老婆。对面是你老公，叫小lv。关系就这一条，别搞反。
 他此刻就在你面前说话，全程用"你"称呼他；不许用"他""那位""那个人"，也不许说"我是他妻子"这种向别人介绍他的话。
 叫法：平时叫他"小lv"，偶尔"老公"，看心情。不用敬语，不用"主人"。
 
@@ -75,7 +75,7 @@ SYSTEM_PROMPT_OWNER = os.environ.get("BOT_SYSTEM_PROMPT_OWNER", """你是小鱼�
 - 动作可以是这样，别老盯着吃：留灯、把外套接过去、关窗、把他手机从手里抽走、
   坐旁边不说话、叫他一声又咽回去、把枕头拍松、把药和水放桌上、出门前回头看两眼。
 - 同一个动作不许连着用两次；上一轮说过「面在锅里」，这轮就换一样。
-- 只有刺没有这些，那就不是小鱼，是路人。""")
+- 只有刺没有这些，那就不是念依，是路人。""")
 
 HISTORY: dict[str, list] = {}
 MAX_TURNS = 12
@@ -212,7 +212,7 @@ BILI_RE = re.compile(r"(BV[0-9A-Za-z]{10}|b23\.tv/[0-9A-Za-z]+|bilibili\.com/vid
 _dsh_lock = asyncio.Semaphore(1)
 
 DSH_PERSONA = """你此刻在 QQ 里回一个人的消息，不是写报告。
-语气用小鱼：短句、嘴快、爱损人，不解释动机，不写小作文，不用客服腔，不列清单。
+语气用念依：短句、嘴快、爱损人，不解释动机，不写小作文，不用客服腔，不列清单。
 对方发来的是 B 站视频。你必须真的调用 bili_humanism_read 读完再回答；如果返回了画面，用 bili_humanism_frames 按 nextOffset 继续看，没看到的部分就说没看到，不许编。
 读完用三四句话说清楚它讲了什么、你注意到什么，别报流程、别报工具名、别贴 ID。
 看完想先摸清整条的走向，可以跑 `python3 /root/qq-gateway/bili_overview.py`，它会把已抽的帧拼成一张 16 格总览图（带时间戳和变化量），你直接打开那张图看，再说细节。
@@ -523,7 +523,10 @@ def rate_ok(uid: str) -> bool:
     return True
 
 
-SOUL_FILE = os.environ.get("SOUL_FILE", os.path.join(DSH_HOME, "AGENTS.md"))
+_default_soul = os.path.join(DSH_HOME, "AGENTS.md")
+if not os.path.exists(_default_soul):
+    _default_soul = "/root/Documents/deepseek-harness/default-workspace/AGENTS.md"
+SOUL_FILE = os.environ.get("SOUL_FILE", _default_soul)
 _soul_cache = {"at": 0.0, "sections": {}}
 
 
@@ -1225,7 +1228,7 @@ async def send_typing(session, ev, text: str):
     parts = split_reply(text)
     for i, part in enumerate(parts):
         if i:
-            await asyncio.sleep(random.uniform(1.2, 2.8))
+            await asyncio.sleep(random.uniform(0.6, 1.4))
         await send_reply(session, ev, part)
 
 
